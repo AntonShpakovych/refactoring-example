@@ -1,171 +1,18 @@
-require 'yaml'
-require 'pry'
+# frozen_string_literal: true
 
 class Account
-  attr_accessor :login, :name, :card, :password, :file_path
+  attr_accessor :login, :name, :card, :password
 
-  def initialize
-    @errors = []
-    @file_path = 'accounts.yml'
+  def initialize(name, login, password, age, card = [])
+    @name  = name
+    @login = login
+    @password = password
+    @age = age
+    @card = card
   end
 
-  def console
-      puts 'Hello, we are RubyG bank!'
-      puts '- If you want to create account - press `create`'
-      puts '- If you want to load account - press `load`'
-      puts '- If you want to exit - press `exit`'
-
-    # FIRST SCENARIO. IMPROVEMENT NEEDED
-
-    a = gets.chomp
-
-    if a == 'create'
-      create
-    elsif a == 'load'
-      load
-    else
-      exit
-    end
-  end
-
-  def create
-    loop do
-      name_input
-      age_input
-      login_input
-      password_input
-      break unless @errors.length != 0
-      @errors.each do |e|
-        puts e
-      end
-      @errors = []
-    end
-
-    @card = []
-    new_accounts = accounts << self
-    @current_account = self
-    File.open(@file_path, 'w') { |f| f.write new_accounts.to_yaml } #Storing
-    main_menu
-  end
-
-  def load
-    loop do
-      if !accounts.any?
-        return create_the_first_account
-      end
-
-      puts 'Enter your login'
-      login = gets.chomp
-      puts 'Enter your password'
-      password = gets.chomp
-
-      if accounts.map { |a| { login: a.login, password: a.password } }.include?({ login: login, password: password })
-        a = accounts.select { |a| login == a.login }.first
-        @current_account = a
-        break
-      else
-        puts 'There is no account with given credentials'
-        next
-      end
-    end
-    main_menu
-  end
-
-  def create_the_first_account
-    puts 'There is no active accounts, do you want to be the first?[y/n]'
-    if gets.chomp == 'y'
-      return create
-    else
-      return console
-    end
-  end
-
-  def main_menu
-    loop do
-      puts "\nWelcome, #{@current_account.name}"
-      puts 'If you want to:'
-      puts '- show all cards - press SC'
-      puts '- create card - press CC'
-      puts '- destroy card - press DC'
-      puts '- put money on card - press PM'
-      puts '- withdraw money on card - press WM'
-      puts '- send money to another card  - press SM'
-      puts '- destroy account - press `DA`'
-      puts '- exit from account - press `exit`'
-
-      command = gets.chomp
-
-      if command == 'SC' || command == 'CC' || command == 'DC' || command == 'PM' || command == 'WM' || command == 'SM' || command == 'DA' || command == 'exit'
-        if command == 'SC'
-          show_cards
-        elsif command == 'CC'
-          create_card
-        elsif command == 'DC'
-          destroy_card
-        elsif command == 'PM'
-          put_money
-        elsif command == 'WM'
-          withdraw_money
-        elsif command == 'SM'
-          send_money
-        elsif command == 'DA'
-          destroy_account
-          exit
-        elsif command == 'exit'
-          exit
-          break
-        end
-      else
-        puts "Wrong command. Try again!\n"
-      end
-    end
-  end
-
-  def create_card
-    loop do
-      puts 'You could create one of 3 card types'
-      puts '- Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`'
-      puts '- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`'
-      puts '- Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`'
-      puts '- For exit - press `exit`'
-
-      ct = gets.chomp
-      if ct == 'usual' || ct == 'capitalist' || ct == 'virtual'
-        if ct == 'usual'
-          card = {
-            type: 'usual',
-            number: 16.times.map{rand(10)}.join,
-            balance: 50.00
-          }
-        elsif ct == 'capitalist'
-          card = {
-            type: 'capitalist',
-            number: 16.times.map{rand(10)}.join,
-            balance: 100.00
-          }
-        elsif ct == 'virtual'
-          card = {
-            type: 'virtual',
-            number: 16.times.map{rand(10)}.join,
-            balance: 150.00
-          }
-        end
-        cards = @current_account.card << card
-        @current_account.card = cards #important!!!
-        new_accounts = []
-        accounts.each do |ac|
-          if ac.login == @current_account.login
-            new_accounts.push(@current_account)
-          else
-            new_accounts.push(ac)
-          end
-        end
-        File.open(@file_path, 'w') { |f| f.write new_accounts.to_yaml } #Storing
-        break
-      else
-        puts "Wrong card type. Try again!\n"
-      end
-    end
+  def add_card(new_card)
+    @card.push(Card.new(new_card.to_sym))
   end
 
   def destroy_card
@@ -413,68 +260,6 @@ class Account
   end
 
   private
-
-  def name_input
-    puts 'Enter your name'
-    @name = gets.chomp
-    unless @name != '' && @name[0].upcase == @name[0]
-      @errors.push('Your name must not be empty and starts with first upcase letter')
-    end
-  end
-
-  def login_input
-    puts 'Enter your login'
-    @login = gets.chomp
-    if @login == ''
-      @errors.push('Login must present')
-    end
-
-    if @login.length < 4
-      @errors.push('Login must be longer then 4 symbols')
-    end
-
-    if @login.length > 20
-      @errors.push('Login must be shorter then 20 symbols')
-    end
-
-    if accounts.map { |a| a.login }.include? @login
-      @errors.push('Such account is already exists')
-    end
-  end
-
-  def password_input
-    puts 'Enter your password'
-    @password = gets.chomp
-    if @password == ''
-      @errors.push('Password must present')
-    end
-
-    if @password.length < 6
-      @errors.push('Password must be longer then 6 symbols')
-    end
-
-    if @password.length > 30
-      @errors.push('Password must be shorter then 30 symbols')
-    end
-  end
-
-  def age_input
-    puts 'Enter your age'
-    @age = gets.chomp
-    if @age.to_i.is_a?(Integer) && @age.to_i >= 23 && @age.to_i <= 90
-      @age = @age.to_i
-    else
-      @errors.push('Your Age must be greeter then 23 and lower then 90')
-    end
-  end
-
-  def accounts
-    if File.exists?('accounts.yml')
-      YAML.load_file('accounts.yml')
-    else
-      []
-    end
-  end
 
   def withdraw_tax(type, balance, number, amount)
     if type == 'usual'

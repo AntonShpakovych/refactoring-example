@@ -1,5 +1,9 @@
 require: rubocop-rspec
 
+AllCops:
+  TargetRubyVersion: 2.7.3
+  NewCops: enable
+
 RSpec/MessageChain:
   Enabled: false
 
@@ -22,6 +26,15 @@ Metrics/BlockLength:
 
 Metrics/LineLength:
   Max: 120
+
+Metrics/ClassLength:
+  Max: 500
+
+Metrics/MethodLength:
+  Max: 20
+
+Metrics/CyclomaticComplexity:
+  Max: 9
 
 Documentation:
   Enabled: false
