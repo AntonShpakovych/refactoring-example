@@ -9,7 +9,7 @@ en:
     age_input: Enter your age
     password_input: Enter your password
     login_input: Enter your login
-    create_the_first_account: There is no active accounts, do you want to be the first?[%{y}/%{n}]
+    create_the_first_account: "There is no active accounts, do you want to be the first?[%{y}/%{n}]\n"
     main_menu_option: "Welcome, %{current_account}\n
                        If you want to:\n
                        \t- show all card - press %{SC}\n
@@ -29,10 +29,33 @@ en:
                   \t- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `%{capitalist}`\n
                   \t- Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `%{virtual}`\n
                   \t- For exit - press `%{exit}`"
-                       
+    destroy_account: Are you sure you want to destroy account?[%{y}/%{n}]
+    put_money_info: 'Choose the card for putting:'
+    put_money: Input the amount of money you want to put on your card
+    put_money_result: "Money %{money} was put on %{number}. Balance: %{balance}. Tax: %{tax}"
+    withdraw_money: Input the amount of money you want to withdraw
+    withdraw_money_info: 'Choose the card for withdrawing:'
+    withdraw_money_result: "Money %{money} withdrawed from %{number}$. Money left: %{balance}$. Tax: %{tax}$"
+    send_money_info: 'Choose the card for sending:'
+    money_exit: "press `%{exit}` to exit\n"
+    
                        
   wrong:
     wrong_answer: You type wrong answer, choose [%{y}/%{n}]
     account_undefined: There is no account with given credentials
     wrong_command: Wrong command, try again!
     wrong_card_type: Wrong card type. Try again!
+    no_active_cards: "There is no active cards!\n"
+    incorrect_money_input: You must input correct amount of money
+    tax_higher_than_amount: Your tax is higher than input amount
+    incorrect_withdraw_money_input: You must input correct amount of $
+    money_not_enough: "You don't have enough money on card for such operation"
+    send_money_incorrect_number: Please, input correct number of card
+    send_money_undefined_card: There is no card with this number
+    money_wrong: "You entered wrong number!\n"
+  
+  destroy_card:
+    exit: press `#{exit}` to exit
+    wrong_card: "You entered wrong number!\n"
+    want_to_delete: 'If you want to delete:'
+    are_u_sure: "Are you sure you want to delete %{number}? [%{y}/%{n}]"

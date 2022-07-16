@@ -1,7 +1,7 @@
 require: rubocop-rspec
 
 AllCops:
-  TargetRubyVersion: 2.7.3
+  TargetRubyVersion: 2.5.1
   NewCops: enable
 
 RSpec/MessageChain:
@@ -17,6 +17,9 @@ RSpec/ExampleLength:
   Max: 10
 
 RSpec/MessageSpies:
+  Enabled: false
+
+RSpec/LeakyConstantDeclaration:
   Enabled: false
 
 Metrics/BlockLength:
@@ -39,5 +42,8 @@ Metrics/CyclomaticComplexity:
 Documentation:
   Enabled: false
 
-FrozenStringLiteralComment:
+RSpec/MultipleMemoizedHelpers:
+  Max: 15
+
+Lint/ConstantDefinitionInBlock:
   Enabled: false

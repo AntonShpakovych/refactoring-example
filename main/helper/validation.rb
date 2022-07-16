@@ -5,7 +5,7 @@ module Validations
 
   REGULAR_FOR_PASSWORD = /^[a-zA-Z0-9]{#{MIN_PASSWORD_LENGTH},#{MAX_PASSWORD_LENGTH}}$/.freeze
   REGULAR_FOR_LOGIN = /^[a-zA-Z0-9]{4,20}$/.freeze
-  REGULAR_FOR_TYPE_CARD = /(#{USUAL}||#{CAPITALIST}||#{VIRTUAL})/.freeze
+  REGULAR_FOR_TYPE_CARD = /\A(#{USUAL}||#{CAPITALIST}||#{VIRTUAL})\z/.freeze
   LENGTH_CARD = 16
   MAX_CARD_DIGIT = 10
 
@@ -25,7 +25,23 @@ module Validations
     login.match(REGULAR_FOR_LOGIN) && !all_login.include?(login)
   end
 
-  def create_card_number
-    LENGTH_CARD.times.map { rand(MAX_CARD_DIGIT) }.join
+  def money_valid?(money)
+    money.positive?
+  end
+
+  def put_money_tax_valid?(money, tax)
+    money > tax
+  end
+
+  def withdraw_money_tax_valid?(money, card)
+    (card.balance - money - card.withdraw_tax(money)).positive?
+  end
+
+  def recipient_card_valid?(all_cards, recipient_number)
+    all_cards.find { |card| card.number == recipient_number }.nil?
+  end
+
+  def recipient_card_length_valid?(recipient_number)
+    recipient_number.length == LENGTH_CARD
   end
 end
