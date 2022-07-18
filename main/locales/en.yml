@@ -7,6 +7,7 @@ en:
   input:
     name_input: Enter your name
     age_input: Enter your age
+    recipient_input: 'Enter the recipient card:'
     password_input: Enter your password
     login_input: Enter your login
     create_the_first_account: "There is no active accounts, do you want to be the first?[%{y}/%{n}]\n"

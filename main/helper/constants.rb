@@ -26,6 +26,8 @@ module Constants
   DA = 'DA'
   EXIT = 'exit'
 
+  COMMANDS = [SC, CC, DC, PM, WM, SM, DA, EXIT].freeze
+
   USUAL = 'usual'
   CAPITALIST = 'capitalist'
   VIRTUAL = 'virtual'

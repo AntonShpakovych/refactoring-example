@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'simplecov'
 
 SimpleCov.start do
-  add_filter(%r{\/spec\/})
+  add_filter(%r{/spec/})
 end
 
 require_relative '../main/main'

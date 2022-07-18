@@ -30,12 +30,6 @@ Metrics/BlockLength:
 Metrics/LineLength:
   Max: 120
 
-Metrics/ClassLength:
-  Max: 500
-
-Metrics/MethodLength:
-  Max: 20
-
 Metrics/CyclomaticComplexity:
   Max: 9
 
@@ -44,6 +38,3 @@ Documentation:
 
 RSpec/MultipleMemoizedHelpers:
   Max: 15
-
-Lint/ConstantDefinitionInBlock:
-  Enabled: false

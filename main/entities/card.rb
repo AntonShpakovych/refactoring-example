@@ -41,6 +41,20 @@ class Card
     end
   end
 
+  def self.puts_cards_account(account, filter)
+    return puts I18n.t('wrong.no_active_cards') if account.card.empty?
+
+    if filter == false
+      account.card.each do |card_item|
+        puts "- #{card_item.number}, #{card_item.type}"
+      end
+    else
+      account.card.each_with_index do |card_item, index|
+        puts "- #{card_item.number}, #{card_item.type}, press #{index.next}"
+      end
+    end
+  end
+
   private
 
   def create_card_number
