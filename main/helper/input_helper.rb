@@ -36,19 +36,19 @@ module InputHelper
   end
 
   def input_destroy_card
-    return puts I18n.t('wrong.no_active_cards') if @current_account.card.empty?
+    return puts I18n.t('wrong.no_active_cards') if @current_account.cards.empty?
 
     choose_card(DESTROY_CARD_INFO, DESTROY_CARD_EXIT, DESTROY_CARD_WRONG)
   end
 
   def input_put_money
-    return puts I18n.t('wrong.no_active_cards') if @current_account.card.empty?
+    return puts I18n.t('wrong.no_active_cards') if @current_account.cards.empty?
 
     choose_card(PUT_MONEY_INFO, MONEY_EXIT, MONEY_WRONG)
   end
 
   def input_withdraw_money
-    return puts I18n.t('wrong.no_active_cards') if @current_account.card.empty?
+    return puts I18n.t('wrong.no_active_cards') if @current_account.cards.empty?
 
     choose_card(WITHDRAW_MONEY_INFO, MONEY_EXIT, MONEY_WRONG)
   end

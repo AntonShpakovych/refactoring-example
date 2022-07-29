@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
 class Account
-  attr_accessor :login, :name, :card, :password
+  attr_accessor :login, :name, :cards, :password
 
-  def initialize(name, login, password, age, card = [])
+  def initialize(name, login, password, age, cards = [])
     @name  = name
     @login = login
     @password = password
     @age = age
-    @card = card
+    @cards = cards
   end
 
   def add_card(new_card)
-    card.push(Card.new(new_card.to_sym))
+    cards.push(Card.const_get("#{new_card.capitalize}Card").new)
   end
 
   def delete_card(card_index)
-    card.delete_at(card_index)
+    cards.delete_at(card_index)
   end
 end

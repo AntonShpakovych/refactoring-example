@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module Constants
+  LENGTH_CARD = 16
+  MAX_CARD_DIGIT = 10
+
   MAX_PASSWORD_LENGTH = 30
   MIN_PASSWORD_LENGTH = 6
 
@@ -31,6 +34,10 @@ module Constants
   USUAL = 'usual'
   CAPITALIST = 'capitalist'
   VIRTUAL = 'virtual'
+
+  REGULAR_FOR_PASSWORD = /^[a-zA-Z0-9]{#{MIN_PASSWORD_LENGTH},#{MAX_PASSWORD_LENGTH}}$/.freeze
+  REGULAR_FOR_LOGIN = /^[a-zA-Z0-9]{4,20}$/.freeze
+  REGULAR_FOR_TYPE_CARD = /\A(#{USUAL}||#{CAPITALIST}||#{VIRTUAL})\z/.freeze
 
   DESTROY_CARD_EXIT = I18n.t('destroy_card.exit', exit: EXIT)
   DESTROY_CARD_INFO = I18n.t('destroy_card.want_to_delete')

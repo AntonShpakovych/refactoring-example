@@ -38,14 +38,14 @@ class Console
   end
 
   def main_menu
-    command = input(I18n.t('input.main_menu_option',
-                           current_account: @current_account.name,
-                           SC: SC, CC: CC, DC: DC, PM: PM, WM: WM, SM: SM, DA: DA, EXIT: EXIT))
-    if COMMANDS.include?(command)
-      command_list(command)
-    else
-      puts I18n.t('wrong.wrong_command')
-      main_menu
+    loop do
+      command = input(I18n.t('input.main_menu_option',
+                             current_account: @current_account.name,
+                             SC: SC, CC: CC, DC: DC, PM: PM, WM: WM, SM: SM, DA: DA, EXIT: EXIT))
+      break exit if command == EXIT
+
+      command_list(command) if COMMANDS.include?(command)
+      puts I18n.t('wrong.wrong_command') unless COMMANDS.include?(command)
     end
   end
 
@@ -58,7 +58,6 @@ class Console
     when WM then withdraw_money
     when SM then send_money
     when DA then destroy_account
-    when EXIT then exit
     end
   end
 
@@ -75,13 +74,13 @@ class Console
   end
 
   def show_cards(with_index: false)
-    Card.puts_cards_account(@current_account, with_index)
+    puts_cards_account(@current_account, with_index)
   end
 
   def destroy_card
     card = input_destroy_card
     return if card.nil? || NO == input(I18n.t('destroy_card.are_u_sure',
-                                              number: @current_account.card[card.pred].number, y: YES, n: NO))
+                                              number: @current_account.cards[card.pred].number, y: YES, n: NO))
 
     @current_account.delete_card(card.pred)
     update_current_account(@current_account)
