@@ -53,6 +53,12 @@ module InputHelper
     choose_card(WITHDRAW_MONEY_INFO, MONEY_EXIT, MONEY_WRONG)
   end
 
+  def input_send_money
+    return puts I18n.t('wrong.no_active_cards') if @current_account.cards.empty?
+
+    choose_card(SEND_MONEY_INFO, MONEY_EXIT, MONEY_WRONG)
+  end
+
   def input_card_type
     input(I18n.t('input.create_card', usual: USUAL, capitalist: CAPITALIST, virtual: VIRTUAL, exit: EXIT))
   end

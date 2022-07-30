@@ -38,7 +38,7 @@ module ConsoleManager
     withdrawal_money(card, withdraw)
   end
 
-  def send_money_input(current_account, card_number, account_recipient, recipient_card)
+  def send_money_input(current_account, account_recipient, card_number, recipient_card)
     balance_before = current_account.cards[card_number.pred].balance
     withdraw_input(current_account, card_number.pred)
     money = calculate_money_for_send(balance_before, current_account.cards[card_number.pred])
@@ -52,7 +52,7 @@ module ConsoleManager
   end
 
   def find_recipient_index(account, card_recipient)
-    account.cards.each_with_index.map { |card, index| index if card.number == card_recipient.number }.first
+    account.cards.index { |card| card.number == card_recipient.number }
   end
 
   def find_percent_for_card(card)

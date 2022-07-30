@@ -31,6 +31,7 @@ RSpec.describe Console do
     if_you_want_to_delete: I18n.t('destroy_card.want_to_delete'),
     choose_card: I18n.t('input.put_money_info'),
     choose_card_withdrawing: I18n.t('input.withdraw_money_info'),
+    choose_card_sending_money: I18n.t('input.send_money_info'),
     input_amount: I18n.t('input.put_money'),
     withdraw_amount: I18n.t('input.withdraw_money')
   }.freeze
@@ -395,10 +396,7 @@ RSpec.describe Console do
     let(:fake_account2) { instance_double(Account, login: fake_login2) }
     let(:accounts) { [correct_account, fake_account, fake_account2] }
     let(:message) do
-      rules =  {'/' => '\/',
-               '[' => '\[',
-               '?' => '\?'
-              }
+      rules = { '/' => '\/', '[' => '\[', '?' => '\?' }
       dont_change_original = COMMON_PHRASES[:destroy_account].dup
       dont_change_original.gsub!('/\w/', rules)
     end
@@ -562,6 +560,7 @@ RSpec.describe Console do
         let(:accept_for_deleting) { 'yes' }
         let(:reject_for_deleting) { 'no' }
         let(:deletable_card_number) { 1 }
+        let(:current_account) { current_subject.instance_variable_get(:@current_account) }
 
         before do
           allow(test_account).to receive(:cards) { fake_cards }
@@ -578,7 +577,7 @@ RSpec.describe Console do
         it 'accept deleting' do
           commands = [deletable_card_number, accept_for_deleting]
           allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
-          expect { current_subject.destroy_card }.to change { current_subject.current_account.cards.size }.by(-1)
+          expect { current_subject.destroy_card }.to change { current_account.cards.size }.by(-1)
           expect(File.exist?(OVERRIDABLE_FILENAME)).to be true
           file_accounts = YAML.load_file(OVERRIDABLE_FILENAME)
           expect(file_accounts.first.cards).not_to include(card_one)
@@ -587,7 +586,7 @@ RSpec.describe Console do
         it 'decline deleting' do
           commands = [deletable_card_number, reject_for_deleting]
           allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
-          expect { current_subject.destroy_card }.not_to change(current_subject.current_account.cards, :size)
+          expect { current_subject.destroy_card }.not_to change(current_account.cards, :size)
         end
       end
     end
@@ -852,6 +851,114 @@ RSpec.describe Console do
                 /#{message(money, custom_card.number, custom_card.balance, custom_card.withdraw_tax(money))}/
               ).to_stdout
             end
+          end
+        end
+      end
+    end
+  end
+
+  describe '#send_money' do
+    context 'without cards' do
+      it 'shows message about not active cards' do
+        current_subject.instance_variable_set(:@current_account, instance_double(Account, cards: []))
+        expect { current_subject.send_money }.to output(/#{ERROR_PHRASES[:no_active_cards]}/).to_stdout
+      end
+    end
+
+    context 'with cards' do
+      let(:card_one) { UsualCard.new }
+      let(:card_two) { CapitalistCard.new }
+      let(:fake_cards) { [card_one, card_two] }
+      let(:test_account) { Account.new('Anton', 'Anton43', 'Anton43', 43) }
+
+      context 'with correct outout' do
+        it do
+          allow(test_account).to receive(:cards) { fake_cards }
+          current_subject.instance_variable_set(:@current_account, test_account)
+          allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
+          expect { current_subject.send_money }.to output(/#{COMMON_PHRASES[:choose_card_sending_money]}/).to_stdout
+          fake_cards.each_with_index do |card, i|
+            message = /- #{card.number}, #{card.type}, press #{i + 1}/
+            expect { current_subject.send_money }.to output(message).to_stdout
+          end
+          current_subject.withdraw_money
+        end
+      end
+
+      context 'with incorrect input of card number' do
+        before do
+          allow(test_account).to receive(:cards) { fake_cards }
+          current_subject.instance_variable_set(:@current_account, test_account)
+        end
+
+        it do
+          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(fake_cards.length + 1, 'exit')
+          expect { current_subject.send_money }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
+        end
+
+        it do
+          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(-1, 'exit')
+          expect { current_subject.send_money }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
+        end
+      end
+
+      context 'with correct input of card number' do
+        before do
+          test_account.instance_variable_set(:@cards, fake_cards)
+          current_subject.instance_variable_set(:@current_account, test_account)
+          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
+        end
+
+        context 'with correct money amount' do
+          let(:choosen_card_number) { 1 }
+          let(:recipient_card_number) { card_two.number }
+          let(:recipient_card) { card_two }
+          let(:money) { 25.0 }
+          let(:commands) { [choosen_card_number, recipient_card_number, money] }
+          let(:choosen_card) { fake_cards[choosen_card_number.pred] }
+
+          def message1(money, number, balance, tax)
+            I18n.t('input.withdraw_money_result',
+                   money: money,
+                   number: number,
+                   balance: balance - money - tax,
+                   tax: tax).gsub('$', '\$')
+          end
+
+          def message2(money, number, balance, tax)
+            I18n.t('input.put_money_result',
+                   money: money,
+                   number: number,
+                   balance: balance + money - tax,
+                   tax: tax)
+          end
+
+          after do
+            File.delete(OVERRIDABLE_FILENAME) if File.exist?(OVERRIDABLE_FILENAME)
+          end
+
+          it 'show message about withdraw from sending card' do
+            allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
+            allow(current_subject).to receive(:accounts) { [test_account] }
+            current_subject.instance_variable_set(:@file_path, OVERRIDABLE_FILENAME)
+            test_account.instance_variable_set(:@cards, fake_cards)
+            expect do
+              current_subject.send_money
+            end.to output(
+              /#{message1(money, choosen_card.number, choosen_card.balance, choosen_card.withdraw_tax(money))}/
+            ).to_stdout
+          end
+
+          it 'show message about put to recipient card' do
+            allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
+            allow(current_subject).to receive(:accounts) { [test_account] }
+            current_subject.instance_variable_set(:@file_path, OVERRIDABLE_FILENAME)
+            test_account.instance_variable_set(:@cards, fake_cards)
+            expect do
+              current_subject.send_money
+            end.to output(
+              /#{message2(money, recipient_card.number, recipient_card.balance, recipient_card.put_tax(money))}/
+            ).to_stdout
           end
         end
       end

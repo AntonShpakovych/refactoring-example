@@ -6,8 +6,6 @@ class Console
   include InputHelper
   include ConsoleManager
 
-  attr_accessor :current_account
-
   def console
     command = input(I18n.t('input.bank_general', bank_name: BANK_NAME, create: CREATE, load: LOAD, exit: EXIT))
     case command
@@ -110,12 +108,12 @@ class Console
   end
 
   def send_money
-    card_number = choose_card(SEND_MONEY_INFO, MONEY_EXIT, MONEY_WRONG)
-    recipient_card = choose_recipient_card
+    card_number = input_send_money
+    recipient_card = choose_recipient_card unless card_number.nil?
 
     return if card_number.nil? || recipient_card.nil?
 
     account_recipient = choose_account_with_recipient_card(recipient_card)
-    send_money_input(@current_account, card_number, account_recipient, recipient_card)
+    send_money_input(@current_account, account_recipient, card_number, recipient_card)
   end
 end

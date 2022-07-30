@@ -2,6 +2,7 @@
 
 require 'yaml'
 require 'i18n'
+require 'pry'
 require_relative 'locales/config'
 require_relative 'helper/data_store'
 require_relative 'helper/constants'
