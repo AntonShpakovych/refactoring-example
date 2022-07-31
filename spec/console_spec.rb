@@ -868,7 +868,8 @@ RSpec.describe Console do
     context 'with cards' do
       let(:card_one) { UsualCard.new }
       let(:card_two) { CapitalistCard.new }
-      let(:fake_cards) { [card_one, card_two] }
+      let(:card_three) { VirtualCard.new }
+      let(:fake_cards) { [card_one, card_two, card_three] }
       let(:test_account) { Account.new('Anton', 'Anton43', 'Anton43', 43) }
 
       context 'with correct outout' do
@@ -910,12 +911,12 @@ RSpec.describe Console do
         end
 
         context 'with correct money amount' do
+          let(:test_account2) { Account.new('Stas', 'Stas43', 'Stas43', 43) }
           let(:choosen_card_number) { 1 }
-          let(:recipient_card_number) { card_two.number }
-          let(:recipient_card) { card_two }
+          let(:recipient_card) { CapitalistCard.new }
+          let(:recipient_card_number) { recipient_card.number }
           let(:money) { 25.0 }
           let(:commands) { [choosen_card_number, recipient_card_number, money] }
-          let(:choosen_card) { fake_cards[choosen_card_number.pred] }
 
           def message1(money, number, balance, tax)
             I18n.t('input.withdraw_money_result',
@@ -938,28 +939,34 @@ RSpec.describe Console do
           end
 
           it 'show message about withdraw from sending card' do
-            allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
-            allow(current_subject).to receive(:accounts) { [test_account] }
-            current_subject.instance_variable_set(:@file_path, OVERRIDABLE_FILENAME)
-            test_account.instance_variable_set(:@cards, fake_cards)
-            expect do
-              current_subject.send_money
-            end.to output(
-              /#{message1(money, choosen_card.number, choosen_card.balance, choosen_card.withdraw_tax(money))}/
-            ).to_stdout
+            fake_cards.each do |custom_card|
+              allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
+              allow(current_subject).to receive(:accounts) { [test_account, test_account2] }
+              current_subject.instance_variable_set(:@file_path, OVERRIDABLE_FILENAME)
+              test_account.instance_variable_set(:@cards, [custom_card])
+              test_account2.instance_variable_set(:@cards, [recipient_card])
+              expect do
+                current_subject.send_money
+              end.to output(
+                /#{message1(money, custom_card.number, custom_card.balance, custom_card.withdraw_tax(money))}/
+              ).to_stdout
+            end
           end
 
           it 'show message about put to recipient card' do
-            allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
-            allow(current_subject).to receive(:accounts) { [test_account] }
-            current_subject.instance_variable_set(:@file_path, OVERRIDABLE_FILENAME)
-            test_account.instance_variable_set(:@cards, fake_cards)
-            expect do
-              current_subject.send_money
-            end.to output(
-              /#{message2(money, recipient_card.number, recipient_card.balance, recipient_card.put_tax(money))}/
-            ).to_stdout
-          end
+            fake_cards.each do |custom_card|
+              allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
+              allow(current_subject).to receive(:accounts) { [test_account, test_account2] }
+              current_subject.instance_variable_set(:@file_path, OVERRIDABLE_FILENAME)
+              test_account.instance_variable_set(:@cards, [custom_card])
+              test_account2.instance_variable_set(:@cards, [recipient_card])
+              expect do
+                current_subject.send_money
+              end.to output(
+                /#{message2(money, recipient_card.number, recipient_card.balance, recipient_card.put_tax(money))}/
+              ).to_stdout
+              end
+            end
         end
       end
     end

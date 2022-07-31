@@ -17,7 +17,7 @@ module DataStore
     File.write(FILE_PATH, all_accounts.to_yaml)
   end
 
-  def update_current_account(account_for_update)
+  def update_account(account_for_update)
     all_accounts = accounts
     all_accounts.delete_if { |account| account.login == account_for_update.login }
     all_accounts << account_for_update

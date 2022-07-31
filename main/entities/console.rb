@@ -64,7 +64,7 @@ class Console
     case choosed_card
     when REGULAR_FOR_TYPE_CARD
       @current_account.add_card(choosed_card)
-      update_current_account(@current_account)
+      update_account(@current_account)
     else
       puts I18n.t('wrong.wrong_card_type')
       create_card
@@ -81,7 +81,7 @@ class Console
                                               number: @current_account.cards[card.pred].number, y: YES, n: NO))
 
     @current_account.delete_card(card.pred)
-    update_current_account(@current_account)
+    update_account(@current_account)
   end
 
   def destroy_account
@@ -92,28 +92,31 @@ class Console
   end
 
   def put_money
-    card_number = input_put_money
-    return if card_number.nil?
+    card_index = input_put_money
+    return if card_index.nil?
 
-    put_money_input(@current_account, card_number.pred)
-    update_current_account(@current_account)
+    put_money_input(@current_account.cards[card_index.pred])
+    update_account(@current_account)
   end
 
   def withdraw_money
-    card_number = input_withdraw_money
-    return if card_number.nil?
+    card_index = input_withdraw_money
+    return if card_index.nil?
 
-    withdraw_input(@current_account, card_number.pred)
-    update_current_account(@current_account)
+    withdraw_input(@current_account.cards[card_index.pred])
+    update_account(@current_account)
   end
 
   def send_money
-    card_number = input_send_money
-    recipient_card = choose_recipient_card unless card_number.nil?
+    card_index = input_send_money
+    recipient_card = choose_recipient_card unless card_index.nil?
 
-    return if card_number.nil? || recipient_card.nil?
+    return if card_index.nil? || recipient_card.nil?
 
-    account_recipient = choose_account_with_recipient_card(recipient_card)
-    send_money_input(@current_account, account_recipient, card_number, recipient_card)
+    account_recipient, recipient_card_index = choose_account_and_index_recipient(recipient_card)
+    card = @current_account.cards[card_index.pred]
+    recipient_card = account_recipient.cards[recipient_card_index]
+    send_money_input(card, recipient_card)
+    update_both_account(@current_account, account_recipient)
   end
 end

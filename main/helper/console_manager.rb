@@ -4,8 +4,10 @@ module ConsoleManager
   include Validations
   include DataStore
 
-  def choose_account_with_recipient_card(card_recipient)
-    accounts.find { |account| account.cards.find { |card| card.number == card_recipient.number } }
+  def choose_account_and_index_recipient(card_recipient)
+    account_recipient = accounts.find { |account| account.cards.find { |card| card.number == card_recipient.number } }
+    index_card_recipient = account_recipient.cards.index { |card| card.number == card_recipient.number }
+    [account_recipient, index_card_recipient]
   end
 
   def choose_recipient_card
@@ -18,8 +20,7 @@ module ConsoleManager
     all_cards.find { |card| card.number == recipient_card_number }
   end
 
-  def put_money_input(account, card_index, money = nil)
-    card = account.cards[card_index]
+  def put_money_input(card, money = nil)
     money ||= input(I18n.t('input.put_money')).to_f
     return puts I18n.t('wrong.incorrect_money_input') unless money_valid?(money)
 
@@ -28,8 +29,7 @@ module ConsoleManager
     putting_money(card, money)
   end
 
-  def withdraw_input(account, card_index)
-    card = account.cards[card_index]
+  def withdraw_input(card)
     withdraw = input(I18n.t('input.withdraw_money')).to_f
     return puts I18n.t('wrong.incorrect_withdraw_money_input') unless money_valid?(withdraw)
 
@@ -38,21 +38,15 @@ module ConsoleManager
     withdrawal_money(card, withdraw)
   end
 
-  def send_money_input(current_account, account_recipient, card_number, recipient_card)
-    balance_before = current_account.cards[card_number.pred].balance
-    withdraw_input(current_account, card_number.pred)
-    money = calculate_money_for_send(balance_before, current_account.cards[card_number.pred])
-    index_recipient_card = find_recipient_index(account_recipient, recipient_card)
-    put_money_input(account_recipient, index_recipient_card, money)
-    update_both_account(current_account, account_recipient)
+  def send_money_input(card, recipient_card)
+    balance_before = card.balance
+    withdraw_input(card)
+    money = calculate_money_for_send(balance_before, card)
+    put_money_input(recipient_card, money)
   end
 
   def calculate_money_for_send(balance_before, card_after)
     (balance_before - card_after.balance) / find_percent_for_card(card_after)
-  end
-
-  def find_recipient_index(account, card_recipient)
-    account.cards.index { |card| card.number == card_recipient.number }
   end
 
   def find_percent_for_card(card)
@@ -79,8 +73,8 @@ module ConsoleManager
   end
 
   def update_both_account(current_account, account_recipient)
-    update_current_account(current_account)
-    update_current_account(account_recipient)
+    update_account(current_account)
+    update_account(account_recipient)
   end
 
   def create_the_first_account
