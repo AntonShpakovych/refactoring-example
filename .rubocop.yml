@@ -1,4 +1,9 @@
-require: rubocop-rspec
+require:
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 2.5.1
+  NewCops: enable
 
 RSpec/MessageChain:
   Enabled: false
@@ -15,6 +20,9 @@ RSpec/ExampleLength:
 RSpec/MessageSpies:
   Enabled: false
 
+RSpec/LeakyConstantDeclaration:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
     - 'Gemfile'
@@ -23,8 +31,11 @@ Metrics/BlockLength:
 Metrics/LineLength:
   Max: 120
 
+Metrics/CyclomaticComplexity:
+  Max: 9
+
 Documentation:
   Enabled: false
 
-FrozenStringLiteralComment:
-  Enabled: false
+RSpec/MultipleMemoizedHelpers:
+  Max: 15

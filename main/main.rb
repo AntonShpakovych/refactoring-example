@@ -1,0 +1,17 @@
+# frozen_string_literal: true
+
+require 'yaml'
+require 'i18n'
+require 'pry'
+require_relative 'locales/config'
+require_relative 'helper/data_store'
+require_relative 'helper/constants'
+require_relative 'helper/validation'
+require_relative 'helper/input_helper'
+require_relative 'helper/console_manager'
+require_relative 'entities/cards/card'
+require_relative 'entities/cards/usual_card'
+require_relative 'entities/cards/virtual_card'
+require_relative 'entities/cards/capitalist_card'
+require_relative 'entities/console'
+require_relative 'entities/account'
